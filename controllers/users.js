@@ -7,3 +7,11 @@ module.exports.createUser = (req, res) => {
     .then(user => res.send({ data: user }))
     .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
 };
+
+module.exports.getUsers = (req, res) => {
+  const { name, about, avatar } = req.body;
+
+  User.find({})
+    .then(users => res.send({ data: users }))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+};
