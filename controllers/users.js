@@ -9,8 +9,6 @@ module.exports.createUser = (req, res) => {
 };
 
 module.exports.getUsers = (req, res) => {
-  const { name, about, avatar } = req.body;
-
   User.find({})
     .then(users => res.send({ data: users }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));

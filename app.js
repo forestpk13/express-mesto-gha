@@ -10,7 +10,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use('/signup', require('./routes/users'));
+app.use('/users', require('./routes/users'));
+
+
+app.use((req, res, next) => {
+  req.user = {
+    _id: '6470acd676d683d8785829ac'
+  };
+
+  next();
+});
+
+app.use('/cards', require('./routes/cards'));
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
