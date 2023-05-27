@@ -8,6 +8,24 @@ module.exports.createUser = (req, res) => {
     .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
+const updateUser = (req, res, userData) => {
+  User.findByIdAndUpdate(req.user._id, userData, { new: true },)
+    .then((user) => res.send(user))
+    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+};
+
+module.exports.updateUserInfo = (req, res) => {
+  const userData = {
+    name: req.body.name,
+    about: req.body.about,
+  };
+  updateUser(req, res, userData);
+};
+
+module.exports.updateUserAvatar = (req, res) => {
+  updateUser(req, res, { avatar: req.body.avatar });
+};
+
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then(users => res.send({ data: users }))
