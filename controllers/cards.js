@@ -1,11 +1,18 @@
 const Card = require('../models/card');
+const Utils = require('../utils/utils');
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then(card => res.send({ data: card }))
-    .catch(err => res.status(500).send({ message: err }));
+    .catch(err => {
+      if(err.name === 'ValidationError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка'})
+      }
+    });
 
 
 };
@@ -22,20 +29,35 @@ module.exports.deleteCard = (req, res, next) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
+const handleLikeCard = (req, res, options) => {
+  const action = options.addLike ? '$addToSet' : '$pull';
+  Card.findById(req.params.cardId)
+    .then(card => {
+      if(!card) {
+        res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+      } else {
+        Card.findByIdAndUpdate(
+          req.params.cardId,
+          { [action]: { likes: req.user._id } },
+          { new: true },
+        )
+        .then((newCard) => res.send(newCard));
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
+};
+
 module.exports.likeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
-    { new: true })
-    .then(() => res.send({ message: 'Лайк поставлен' }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
-}
+  handleLikeCard(req, res, { addLike: true });
+};
+
 
 module.exports.dislikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true })
-    .then(() => res.send({ message: 'Лайк удален' }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
-}
+  handleLikeCard(req, res, { addLike: false });
+};
