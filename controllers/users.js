@@ -17,9 +17,15 @@ module.exports.createUser = (req, res) => {
 };
 
 const updateUser = (req, res, userData) => {
-  User.findByIdAndUpdate(req.user._id, userData, { new: true },)
+  User.findByIdAndUpdate(req.user._id, userData, { new: true, runValidators: true },)
     .then((user) => res.send(user))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(err => {
+      if(err.name === 'ValidationError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка'})
+      }
+    });
 };
 
 module.exports.updateUserInfo = (req, res) => {
