@@ -1,5 +1,0 @@
-const router = require('express').Router();
-
-router.use(() => {
-  throw new NotFoundError('Ресурс не найден. Проверьте URL и метод запроса');
-});
