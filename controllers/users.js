@@ -1,11 +1,19 @@
 const User = require('../models/user');
+const Utils = require('../utils/utils')
+
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar})
-    .then(user => res.send({ data: user }))
-    .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+    .then(user => res.status(201).send({ data: user }))
+    .catch(err => {
+      if(err.name === 'ValidationError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка'})
+      }
+    });
 };
 
 const updateUser = (req, res, userData) => {
