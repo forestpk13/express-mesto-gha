@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const Utils = require('./utils/utils');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -21,8 +22,10 @@ app.use((req, res, next) => {
 
 app.use('/cards', require('./routes/cards'));
 app.use('/users', require('./routes/users'));
+app.use('*', function(req, res) {
+  res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage)
+})
 
 app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
   console.log(`App listening on port ${PORT}`);
 });

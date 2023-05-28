@@ -13,8 +13,6 @@ module.exports.createCard = (req, res) => {
         res.status(500).send({ message: 'Произошла ошибка'})
       }
     });
-
-
 };
 
 module.exports.getCards = (req, res) => {
@@ -23,10 +21,22 @@ module.exports.getCards = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
-module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then(() => res.send({ message: 'Пост удалён' }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+module.exports.deleteCard = (req, res) => {
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+      }
+        Card.findByIdAndRemove(req.params.cardId)
+          .then(() => res.send({ message: 'Пост удалён' }));
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+      } else {
+        res.status(500).send({ message: 'Произошла ошибка' });
+      }
+    });
 };
 
 const handleLikeCard = (req, res, options) => {
@@ -36,12 +46,12 @@ const handleLikeCard = (req, res, options) => {
       if(!card) {
         res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
       } else {
-        Card.findByIdAndUpdate(
-          req.params.cardId,
-          { [action]: { likes: req.user._id } },
-          { new: true },
-        )
-        .then((newCard) => res.send(newCard));
+         Card.findByIdAndUpdate(
+            req.params.cardId,
+           { [action]: { likes: req.user._id } },
+           { new: true },
+         )
+          .then((newCard) => res.send(newCard));
       }
     })
     .catch((err) => {
