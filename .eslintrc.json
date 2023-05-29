@@ -7,14 +7,6 @@
   "extends": "airbnb-base",
   "overrides": [
   ],
-  "import/no-extraneous-dependencies": [
-    "error", {
-       "devDependencies": false,
-       "optionalDependencies": false,
-       "peerDependencies": false,
-       "packageDir": "./"
-    }
-  ],
   "parserOptions": {
     "ecmaVersion": "latest"
   },

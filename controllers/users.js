@@ -4,10 +4,10 @@ const Utils = require('../utils/utils');
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
-  User.create({ name, about, avatar})
-    .then(user => res.status(201).send({ data: user }))
-    .catch(err => {
-      if(err.name === 'ValidationError') {
+  User.create({ name, about, avatar })
+    .then((user) => res.status(201).send({ data: user }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
         res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
@@ -16,10 +16,10 @@ module.exports.createUser = (req, res) => {
 };
 
 const updateUser = (req, res, userData) => {
-  User.findByIdAndUpdate(req.user._id, userData, { new: true, runValidators: true },)
+  User.findByIdAndUpdate(req.user._id, userData, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch(err => {
-      if(err.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
         res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
@@ -41,24 +41,24 @@ module.exports.updateUserAvatar = (req, res) => {
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then(users => res.send({ data: users }))
+    .then((users) => res.send({ data: users }))
     .catch(() => res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage));
 };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then(user => {
-      if(!user) {
+    .then((user) => {
+      if (!user) {
         res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
       } else {
-        res.send({ data: user })
+        res.send({ data: user });
       }
     })
-    .catch(err => {
-      if(err.name === 'CastError') {
+    .catch((err) => {
+      if (err.name === 'CastError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
         res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
-}
+};
