@@ -28,6 +28,4 @@ app.use('*', (req, res) => {
   res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
 });
 
-app.listen(PORT, () => {
-
-});
+app.listen(PORT, () => {});
