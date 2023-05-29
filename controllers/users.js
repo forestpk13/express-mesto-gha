@@ -10,7 +10,7 @@ module.exports.createUser = (req, res) => {
       if(err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка'})
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 };
@@ -22,7 +22,7 @@ const updateUser = (req, res, userData) => {
       if(err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка'})
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 };
@@ -42,7 +42,7 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then(users => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -58,7 +58,7 @@ module.exports.getUserById = (req, res) => {
       if(err.name === 'CastError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка'})
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 }

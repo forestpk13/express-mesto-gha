@@ -10,7 +10,7 @@ module.exports.createCard = (req, res) => {
       if(err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка'})
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 };
@@ -18,7 +18,7 @@ module.exports.createCard = (req, res) => {
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then(cards => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -26,15 +26,15 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
-      }
+      } else {
         Card.findByIdAndRemove(req.params.cardId)
           .then(() => res.send({ message: 'Пост удалён' }));
-    })
+      }})
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 };
@@ -58,7 +58,7 @@ const handleLikeCard = (req, res, options) => {
       if (err.name === 'CastError') {
         res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
     });
 };
