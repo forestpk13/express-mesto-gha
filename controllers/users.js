@@ -1,14 +1,29 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const Utils = require('../utils/utils');
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-
-  User.create({ name, about, avatar })
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    // eslint-disable-next-line no-unused-vars
+    password,
+  } = req.body;
+  bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        res.status(Utils.badRequestErrorCode).send(err.message);
       } else {
         res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
