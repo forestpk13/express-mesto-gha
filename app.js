@@ -1,8 +1,10 @@
 const express = require('express');
-
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Utils = require('./utils/utils');
+const { login, createUser } = require('./controllers/users');
+const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -20,9 +22,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/cards', require('./routes/cards'));
-
-app.use('/users', require('./routes/users'));
+app.post('/signin', login);
+app.post('/signup', createUser);
+app.use('/cards', cardsRouter);
+app.use('/users', usersRouter);
 
 app.use('*', (req, res) => {
   res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);

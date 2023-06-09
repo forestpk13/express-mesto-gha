@@ -1,29 +1,43 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
+/* eslint-disable consistent-return */
+/* eslint-disable import/no-extraneous-dependencies */
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const Utils = require('../utils/utils');
 
 module.exports.createUser = (req, res) => {
-  const {
-    name,
-    about,
-    avatar,
-    email,
-    // eslint-disable-next-line no-unused-vars
-    password,
-  } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
+      email: req.body.email,
       password: hash,
     }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(Utils.badRequestErrorCode).send(err.message);
+      } else {
+        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+      }
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUser(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, Utils.JWT_SECRET, { expiresIn: '7d' });
+      res
+        .cookie('token', token, {
+          maxAge: 3600 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .send({ email });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
       } else {
         res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
       }
