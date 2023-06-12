@@ -1,9 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
-const Utils = require('./utils/utils');
 const { login, createUser } = require('./controllers/users');
+const NotFoundError = require('./errors/notFoundError');
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -30,8 +29,8 @@ app.post('/signup', createUser);
 app.use('/cards', cardsRouter);
 app.use('/users', usersRouter);
 
-app.use('*', (req, res) => {
-  res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+app.use('*', () => {
+  throw new NotFoundError('Ресурс не найден. Проверьте URL и метод запроса');
 });
 
 // eslint-disable-next-line no-unused-vars
