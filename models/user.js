@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
-});
+}, { toObject: { useProjection: true }, toJSON: { useProjection: true } });
 
 // eslint-disable-next-line func-names
 userSchema.statics.findUser = function (email, password) {

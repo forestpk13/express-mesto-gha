@@ -9,8 +9,12 @@ const ConflictError = require('../errors/conflictError');
 const Utils = require('../utils/utils');
 
 module.exports.createUser = (req, res, next) => {
+  const { name, about, avatar } = req.body;
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
+      name,
+      about,
+      avatar,
       email: req.body.email,
       password: hash,
     }))
