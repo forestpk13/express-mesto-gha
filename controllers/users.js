@@ -3,9 +3,12 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const BadRequestError = require('../errors/badRequestError');
+const NotFoundError = require('../errors/notFounderror');
+const ConflictError = require('../errors/conflictError');
 const Utils = require('../utils/utils');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       email: req.body.email,
@@ -13,15 +16,17 @@ module.exports.createUser = (req, res) => {
     }))
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(Utils.badRequestErrorCode).send(err.message);
+      if (err.code === 11000) {
+        next(new ConflictError('Пользователь с данным email уже существует'));
+      } else if (err.name === 'ValidationError') {
+        next(new BadRequestError(err.message));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUser(email, password)
@@ -37,21 +42,21 @@ module.exports.login = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        next(new BadRequestError(err.message));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
 
-const updateUser = (req, res, userData) => {
+const updateUser = (req, res, next, userData) => {
   User.findByIdAndUpdate(req.user._id, userData, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        next(new BadRequestError(err.message));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
@@ -68,26 +73,32 @@ module.exports.updateUserAvatar = (req, res) => {
   updateUser(req, res, { avatar: req.body.avatar });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+        throw new NotFoundError('Пользователь с таким id не найден');
       } else {
         res.send({ data: user });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        next(new BadRequestError('Некорректный формат id пользователя'));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
+};
+
+module.exports.getOwnProfile = (req, res, next) => {
+  User.findOne({ _id: req.user._id })
+    .then((user) => res.send(user))
+    .catch(next);
 };

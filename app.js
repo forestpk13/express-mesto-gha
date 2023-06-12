@@ -33,8 +33,21 @@ app.use(auth);
 app.use('/cards', cardsRouter);
 app.use('/users', usersRouter);
 
-app.listen(PORT, () => {});
-
 app.use('*', (req, res) => {
   res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
 });
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
+
+app.listen(PORT, () => {});

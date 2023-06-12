@@ -1,33 +1,35 @@
+const BadRequestError = require('../errors/badRequestError');
+const NotFoundError = require('../errors/notFounderror');
+const ForbiddenError = require('../errors/forbiddenError');
 const Card = require('../models/card');
-const Utils = require('../utils/utils');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        throw new BadRequestError(err.message);
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage));
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+        throw new NotFoundError('Пост с таким id не найден');
       } else if (card.owner.toString() !== req.user._id) {
-        res.status(Utils.forbiddenErrorCode).send(Utils.forbiddenErrorMessage);
+        throw new ForbiddenError('Нельзя удалять чужие карточки');
       } else {
         Card.findByIdAndRemove(req.params.cardId)
           .then(() => res.send({ message: 'Пост удалён' }));
@@ -35,19 +37,19 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        next(new BadRequestError('Некорректный формат id карточки'));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
 
-const handleLikeCard = (req, res, options) => {
+const handleLikeCard = (req, res, next, options) => {
   const action = options.addLike ? '$addToSet' : '$pull';
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+        throw new NotFoundError('Пост с таким id не найден');
       } else {
         Card.findByIdAndUpdate(
           req.params.cardId,
@@ -59,9 +61,9 @@ const handleLikeCard = (req, res, options) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(Utils.badRequestErrorCode).send(Utils.badRequestErrorMessage);
+        next(new BadRequestError('Некорректный формат id карточки'));
       } else {
-        res.status(Utils.serverErrorCode).send(Utils.serverErrorMessage);
+        next(err);
       }
     });
 };
