@@ -28,8 +28,6 @@ app.use((req, res, next) => {
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use(auth);
-
 app.use('/cards', cardsRouter);
 app.use('/users', usersRouter);
 
