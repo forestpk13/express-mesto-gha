@@ -26,6 +26,8 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(Utils.notFoundErrorCode).send(Utils.notFoundErrorMessage);
+      } else if (card.owner.toString() !== req.user._id) {
+        res.status(Utils.forbiddenErrorCode).send(Utils.forbiddenErrorMessage);
       } else {
         Card.findByIdAndRemove(req.params.cardId)
           .then(() => res.send({ message: 'Пост удалён' }));
