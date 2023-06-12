@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { login, createUser } = require('./controllers/users');
-const NotFoundError = require('./errors/notFoundError');
+const NotFoundError = require('./errors/notFounderror');
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
