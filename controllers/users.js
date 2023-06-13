@@ -54,7 +54,14 @@ module.exports.login = (req, res, next) => {
 };
 
 const updateUser = (req, res, next, userData) => {
-  User.findByIdAndUpdate(req.user._id, userData, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    userData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -65,16 +72,16 @@ const updateUser = (req, res, next, userData) => {
     });
 };
 
-module.exports.updateUserInfo = (req, res) => {
+module.exports.updateUserInfo = (req, res, next) => {
   const userData = {
     name: req.body.name,
     about: req.body.about,
   };
-  updateUser(req, res, userData);
+  updateUser(req, res, next, userData);
 };
 
-module.exports.updateUserAvatar = (req, res) => {
-  updateUser(req, res, { avatar: req.body.avatar });
+module.exports.updateUserAvatar = (req, res, next) => {
+  updateUser(req, res, next, { avatar: req.body.avatar });
 };
 
 module.exports.getUsers = (req, res, next) => {
