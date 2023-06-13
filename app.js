@@ -4,9 +4,11 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { errors } = require('celebrate');
+
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFounderror');
 const auth = require('./middlewares/auth');
+const { validateLoginData, validateRegisterData } = require('./utils/validators/userValidators');
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -28,8 +30,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateLoginData, login);
+app.post('/signup', validateRegisterData, createUser);
 
 app.use(auth); // ниже защищенные роуты
 
