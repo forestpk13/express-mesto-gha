@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFounderror');
 const auth = require('./middlewares/auth');
@@ -38,6 +39,8 @@ app.use('/users', usersRouter);
 app.use('*', () => {
   throw new NotFoundError('Ресурс не найден. Проверьте URL и метод запроса');
 });
+
+app.use(errors());
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
