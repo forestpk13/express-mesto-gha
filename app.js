@@ -1,8 +1,11 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFounderror');
+const auth = require('./middlewares/auth');
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
@@ -10,6 +13,7 @@ const cardsRouter = require('./routes/cards');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,6 +29,8 @@ app.use((req, res, next) => {
 
 app.post('/signin', login);
 app.post('/signup', createUser);
+
+app.use(auth); // ниже защищенные роуты
 
 app.use('/cards', cardsRouter);
 app.use('/users', usersRouter);

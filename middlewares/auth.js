@@ -4,13 +4,11 @@ const Utils = require('../utils/utils');
 
 // eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const { token } = req.cookies;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!token) {
     throw new UnauthorizedError('Необходима авторизация');
   }
-
-  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
