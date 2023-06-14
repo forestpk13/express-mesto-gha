@@ -3,6 +3,11 @@ const ForbiddenError = require('../errors/forbiddenError');
 const NotFoundError = require('../errors/notFounderror');
 const Card = require('../models/card');
 
+const linkWithUserModel = [
+  { path: 'likes', model: 'user' },
+  { path: 'owner', model: 'user' },
+];
+
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
 
@@ -19,6 +24,7 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
+    .populate(linkWithUserModel)
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
