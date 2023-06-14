@@ -7,6 +7,7 @@ const { errors } = require('celebrate');
 const helmet = require('helmet');
 const limiter = require('express-rate-limit');
 
+const errorHandler = require('./middlewares/errorHandler');
 const { login, createUser } = require('./controllers/users');
 const NotFoundError = require('./errors/notFounderror');
 const auth = require('./middlewares/auth');
@@ -51,15 +52,6 @@ app.use('*', () => {
 
 app.use(errors());
 
-// eslint-disable-next-line no-unused-vars
-app.use((err, _, res, next) => {
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500 ? 'Ошибка сервера' : message,
-    });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {});
