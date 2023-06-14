@@ -30,14 +30,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect(DB_URL);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6470acd676d683d8785829ac',
-  };
-
-  next();
-});
-
 app.post('/signin', validateLoginData, login);
 app.post('/signup', validateRegisterData, createUser);
 
