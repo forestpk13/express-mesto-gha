@@ -19,7 +19,7 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.send({ data: cards }))
+    .then((cards) => res.status(201).send({ data: cards }))
     .catch(next);
 };
 
